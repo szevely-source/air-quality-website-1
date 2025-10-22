@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Air Quality & Society — Impacts, Measurement, Solutions</title>
+  <meta name="description" content="How air quality affects society, how it is measured, and practical ways communities and individuals can improve the air we breathe." />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Chart.js for data visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --brand-1: #05668d;
+      --brand-2: #028090;
+      --accent: #00a896;
+      --muted: #6b7280;
+      --card-bg: #ffffff;
+      --page-bg: #f7fbfc;
+      --radius: 12px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:var(--page-bg);
+      color:#0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.5;
+    }
+
+    /* Top hero */
+    header.hero{
+      background: linear-gradient(135deg,var(--brand-1),var(--brand-2));
+      color: #fff;
+      padding: 64px 20px;
+      text-align: center;
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
+    }
+    header .container{
+      max-width:1100px;
+      margin:0 auto;
+    }
+    header h1{
+      margin:0;
+      font-weight:700;
+      font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+      letter-spacing:-0.02em;
+    }
+    header p{margin-top:12px; opacity:0.95; font-size:1.05rem}
+
+    nav.primary{
+      display:flex;
+      justify-content:center;
+      gap:18px;
+      margin-top:18px;
+      flex-wrap:wrap;
+    }
+    nav.primary a{
+      color:rgba(255,255,255,0.95);
+      text-decoration:none;
+      font-weight:600;
+      padding:8px 14px;
+      border-radius:10px;
+      transition: all .15s;
+    }
+    nav.primary a:hover{transform: translateY(-2px); opacity:0.95}
+
+    /* Page layout */
+    main{max-width:1100px;margin:30px auto;padding:0 20px}
+    .grid{
+      display:grid;
+      gap:20px;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    @media (max-width: 980px){ .grid{grid-template-columns: repeat(2, 1fr)} }
+    @media (max-width: 640px){ .grid{grid-template-columns: 1fr} nav.primary{gap:10px}}
+
+    .card{
+      background:var(--card-bg);
+      border-radius:var(--radius);
+      box-shadow:0 8px 20px rgba(12,18,29,0.06);
+      padding:22px;
+    }
+    .card h3{margin-top:0;color:var(--brand-1)}
+    .muted{color:var(--muted)}
+    .icon{
+      font-size:28px;
+      width:54px;height:54px;border-radius:10px;
+      display:inline-grid;place-items:center;margin-bottom:12px;
+      color:white;
+    }
+
+    /* Section headers */
+    section{margin-bottom:30px}
+    .section-title{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+    .section-title h2{margin:0}
+    .lead{color:var(--muted);font-size:1.02rem}
+
+    /* Impact cards: use icons */
+    .impact-grid{display:grid;gap:16px;grid-template-columns:repeat(3,1fr)}
+    @media (max-width: 980px){ .impact-grid{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width: 640px){ .impact-grid{grid-template-columns:1fr} }
+
+    /* AQI widget area */
+    .aqi-widget{
+      display:flex;gap:18px;align-items:center;flex-wrap:wrap;
+    }
+    .aqi-form input[type="text"]{
+      padding:10px 12px;border-radius:10px;border:1px solid #e6eef2;width:240px;
+    }
+    .btn{
+      background:var(--accent); color:#fff; border:none;padding:10px 14px;border-radius:10px;
+      cursor:pointer;font-weight:600;
+    }
+    .btn.secondary{background:#e6f6f4;color:#05668d}
+
+    /* Improvements list */
+    ul.improve{list-style:none;padding-left:0;display:grid;gap:10px}
+    ul.improve li{display:flex;gap:12px;align-items:flex-start}
+    ul.improve li .bullet{min-width:46px;height:46px;border-radius:10px;display:inline-grid;place-items:center;color:white}
+
+    /* Footer */
+    footer{margin-top:40px;padding:30px 20px;text-align:center;color:var(--muted);font-size:0.95rem}
+    a.logo{display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:inherit}
+    .small{font-size:0.9rem;color:var(--muted)}
+
+    /* Accessibility focus */
+    :focus{outline:3px solid rgba(0,168,150,0.15);outline-offset:3px}
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <header class="hero" role="banner" aria-label="Air quality hero">
+    <div class="container">
+      <a href="#" class="logo" aria-label="Air Quality and Society Home" style="text-decoration:none;color:#fff">
+        <div style="width:44px;height:44px;border-radius:10px;background:#00a896;display:inline-grid;place-items:center;font-weight:700">
+          <i class="fa-solid fa-wind" style="color:#fff"></i>
+        </div>
+        <strong style="font-size:1.1rem">Air Quality & Society</strong>
+      </a>
+
+      <h1>How air quality shapes health, economy, and our environment — and what we can do about it</h1>
+      <p class="lead">Science-backed overview for communities, planners, and policy advocates. Explains measurement, societal impact, and practical solutions.</p>
+
+      <nav class="primary" aria-label="Primary navigation">
+        <a href="#impact">Impact</a>
+        <a href="#measure">How it's measured</a>
+        <a href="#improve">How to improve</a>
+        <a href="#data">Data & Tools</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- IMPACT -->
+    <section id="impact" aria-labelledby="impactTitle">
+      <div class="section-title">
+        <h2 id="impactTitle">Impact on Society</h2>
+      </div>
+
+      <p class="lead">Air pollution affects people, places, and economies at local and global scales. The consequences are visible across health outcomes, ecosystems, and urban productivity.</p>
+
+      <div class="impact-grid" style="margin-top:14px">
+        <div class="card" role="article" aria-label="Health impact">
+          <div class="icon" style="background:#ff6b6b">
+            <i class="fa-solid fa-lungs"></i>
+          </div>
+          <h3>Health</h3>
+          <p class="muted">Fine particles (PM2.5), ozone, and toxic gases increase risks of asthma, heart disease, stroke, and premature death. Children, older adults, and people with chronic conditions are most vulnerable.</p>
+          <p class="small"><strong>Key stat:</strong> Long-term PM2.5 exposure is linked to higher mortality and reduced life expectancy in many studies.</p>
+        </div>
+
+        <div class="card" role="article" aria-label="Environment impact">
+          <div class="icon" style="background:#ffd166">
+            <i class="fa-solid fa-leaf"></i>
+          </div>
+          <h3>Environment</h3>
+          <p class="muted">Air pollutants damage crops, reduce biodiversity, acidify soils and water bodies, and contribute to climate change through greenhouse gas co-emissions.</p>
+          <p class="small"><strong>Example:</strong> Ground-level ozone reduces crop yields and harms forests.</p>
+        </div>
+
+        <div class="card" role="article" aria-label="Economic impact">
+          <div class="icon" style="background:#2ec4b6">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+          <h3>Economy & Equity</h3>
+          <p class="muted">Healthcare costs, lost work-days, and reduced productivity create large economic burdens. Pollution often disproportionately affects low-income and marginalized communities.</p>
+          <p class="small"><strong>Policy concern:</strong> Effective solutions can yield both health and economic benefits.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT'S MEASURED -->
+    <section id="measure" aria-labelledby="measureTitle">
+      <div class="section-title">
+        <h2 id="measureTitle">How Air Quality Is Measured</h2>
+      </div>
+
+      <div class="grid" style="align-items:start">
+        <!-- Explanations -->
+        <div class="card" style="grid-column: span 2;">
+          <h3>Key Metrics and Instruments</h3>
+          <p class="muted">Air quality monitoring uses a combination of fixed regulatory stations, mobile sensors, satellite retrievals, and low-cost community sensors to measure chemical species and particle concentrations.</p>
+
+          <ul style="margin-top:12px">
+            <li><strong>PM2.5 / PM10:</strong> Fine and coarse particulate matter — measured in µg/m³ — strongly linked to health outcomes.</li>
+            <li><strong>Ozone (O₃):</strong> A secondary pollutant that causes respiratory irritation and is measured in ppb (parts per billion).</li>
+            <li><strong>NO₂, SO₂, CO:</strong> Gas-phase pollutants monitored by chemiluminescence, UV fluorescence, and electrochemical sensors.</li>
+            <li><strong>Air Quality Index (AQI):</strong> A standardized scale (0–500) that translates pollutant concentrations into health-based categories like Good, Moderate, Unhealthy.</li>
+          </ul>
+
+          <p class="muted small">Regulatory monitors follow strict quality-assurance procedures; low-cost sensors supplement coverage but require calibration and QA for scientific or policy use.</p>
+        </div>
+
+        <!-- Chart - AQI categories -->
+        <div class="card" aria-hidden="false">
+          <h3>AQI Categories</h3>
+          <canvas id="aqiCategoriesChart" aria-label="AQI categories chart" role="img" width="400" height="300"></canvas>
+          <p class="small muted" style="margin-top:10px">This illustrative chart shows typical AQI category ranges and their health implications.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW TO IMPROVE -->
+    <section id="improve" aria-labelledby="improveTitle">
+      <div class="section-title">
+        <h2 id="improveTitle">How to Improve Air Quality</h2>
+      </div>
+
+      <p class="lead">Improving air quality requires action at multiple levels: policy, infrastructure, industry, community, and individual behavior. Effective strategies often produce multiple benefits including reduced emissions, improved public health, and climate co-benefits.</p>
+
+      <div class="grid" style="align-items:stretch">
+        <div class="card">
+          <h3>Policy & Planning</h3>
+          <p class="muted">Enforce emission limits, set clean-air zones, invest in public transit, and plan cities for active travel and green spaces.</p>
+          <ul class="improve" style="margin-top:12px">
+            <li><div class="bullet" style="background:#05668d"><i class="fa-solid fa-landmark"></i></div><div><strong>Regulatory limits:</strong> Strong standards for vehicles and industry.</div></li>
+            <li><div class="bullet" style="background:#028090"><i class="fa-solid fa-bus"></i></div><div><strong>Public transport:</strong> Expand low-emission transit and cycling infrastructure.</div></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Technology & Industry</h3>
+          <p class="muted">Switch to cleaner fuels, electrify transport and heating, improve energy efficiency, and deploy emissions controls on industry.</p>
+          <ul class="improve" style="margin-top:12px">
+            <li><div class="bullet" style="background:#00a896"><i class="fa-solid fa-bolt"></i></div><div><strong>Electrification:</strong> Electric buses, vehicles, and heat-pumps.</div></li>
+            <li><div class="bullet" style="background:#2ec4b6"><i class="fa-solid fa-industry"></i></div><div><strong>Cleaner processes:</strong> Low-NOx burners, filters, and continuous emissions monitoring.</div></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Community & Individual Actions</h3>
+          <p class="muted">Communities can use monitoring networks and education to target solutions; individuals can reduce emissions through choices.</p>
+          <ul class="improve" style="margin-top:12px">
+            <li><div class="bullet" style="background:#ffd166"><i class="fa-solid fa-tree"></i></div><div><strong>Green spaces:</strong> Plant trees and maintain urban canopy.</div></li>
+            <li><div class="bullet" style="background:#ff6b6b"><i class="fa-solid fa-car-burst"></i></div><div><strong>Transport choices:</strong> Walk, cycle, carpool, or use transit when possible.</div></li>
+            <li><div class="bullet" style="background:#2a9d8f"><i class="fa-solid fa-recycle"></i></div><div><strong>Reduce waste & burning:</strong> Avoid open burning of waste and reduce use of volatile household products.</div></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATA & LIVE AQI -->
+    <section id="data" aria-labelledby="dataTitle">
+      <div class="section-title">
+        <h2 id="dataTitle">Data & Tools (Interactive)</h2>
+      </div>
+
+      <p class="lead">Below is an interactive widget to check the latest measurements for a city (powered by the OpenAQ public API). If you prefer not to use external APIs, the widget can be removed — the chart remains as an illustrative dataset.</p>
+
+      <div class="card" style="display:flex;flex-direction:column;gap:16px">
+        <!-- Live AQI / measurements -->
+        <div class="aqi-widget" style="align-items:center">
+          <div class="aqi-form" aria-label="AQI search form">
+            <label for="cityInput" class="small muted">Search city</label><br>
+            <input id="cityInput" type="text" placeholder="e.g., Los Angeles, London, Delhi" aria-label="City name">
+            <button id="searchBtn" class="btn" aria-label="Get latest measurements">Get latest</button>
+            <button id="exampleBtn" class="btn secondary" aria-label="Use example city">Example: Los Angeles</button>
+          </div>
+
+          <div id="aqiResult" style="min-width:260px; display:none;">
+            <div style="display:flex;gap:12px;align-items:center">
+              <div style="width:48px;height:48px;border-radius:10px;background:var(--accent);display:grid;place-items:center;color:#fff"><i class="fa-solid fa-map-marker-alt"></i></div>
+              <div>
+                <div id="aq-location" style="font-weight:600"></div>
+                <div id="aq-updated" class="small muted"></div>
+              </div>
+            </div>
+            <div style="margin-top:12px">
+              <p style="margin:0"><strong>PM2.5:</strong> <span id="aq-pm25">—</span> µg/m³</p>
+              <p style="margin:0"><strong>PM10:</strong> <span id="aq-pm10">—</span> µg/m³</p>
+              <p style="margin:0"><strong>Primary source:</strong> <span id="aq-source">—</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Illustrative time series chart -->
+        <div>
+          <h3 style="margin-top:0">Example AQI Trend (illustrative)</h3>
+          <canvas id="trendChart" aria-label="Illustrative AQI trend" role="img" width="800" height="300"></canvas>
+          <p class="small muted" style="margin-top:10px">This is sample data to demonstrate visualization. Replace with real API data for live dashboards.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CALL TO ACTION -->
+    <section aria-labelledby="ctaTitle">
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap">
+        <div>
+          <h3 id="ctaTitle" style="margin:0">Get involved: Support cleaner air in your community</h3>
+          <p class="muted small" style="margin-top:8px">Support local clean-air campaigns, promote active transport, and share data to inform local planning.</p>
+        </div>
+        <div style="display:flex;gap:10px">
+          <a class="btn" href="#improve" role="button">Learn practical steps</a>
+          <a class="btn secondary" href="#data" role="button">Explore data & tools</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer role="contentinfo">
+    <div style="max-width:1100px;margin:0 auto;padding:0 20px">
+      <p class="small">© 2025 Air Quality & Society — Educational resource. Content is for informational purposes and should be complemented with local regulatory sources for decision-making.</p>
+      <p class="small muted" style="margin-top:6px">Built with <i class="fa-solid fa-wind"></i> • Data examples can be connected to public APIs like OpenAQ.</p>
+    </div>
+  </footer>
+
+  <!-- ========== SCRIPTS: Chart and AQI widgets ========== -->
+  <script>
+    /* ---------------------------
+       1) AQI Categories chart (static, explanatory)
+       ---------------------------- */
+    (function renderAQICategories(){
+      const ctx = document.getElementById('aqiCategoriesChart').getContext('2d');
+      // Simple horizontal bar showing category ranges
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy', 'Hazardous'],
+          datasets: [{
+            label: 'AQI Category (illustrative severity)',
+            data: [50, 50, 50, 50, 50, 50], // equal bars — descriptor chart
+            backgroundColor: [
+              '#34D399','#FBBF24','#F97316','#F43F5E','#9F1239','#6B21A8'
+            ],
+            borderRadius: 8
+          }]
+        },
+        options:{
+          indexAxis: 'y',
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { display:false },
+            y: { beginAtZero:true }
+          },
+          maintainAspectRatio:false
+        }
+      });
+    })();
+
+    /* ---------------------------
+       2) Illustrative AQI trend chart (sample data)
+       ---------------------------- */
+    (function renderTrendChart(){
+      const ctx = document.getElementById('trendChart').getContext('2d');
+      const years = ['2016','2017','2018','2019','2020','2021','2022','2023','2024'];
+      const sampleAQI = [95, 88, 85, 82, 78, 76, 73, 70, 67]; // illustrative downward trend
+      new Chart(ctx, {
+        type:'line',
+        data:{
+          labels: years,
+          datasets:[{
+            label:'Average annual AQI (illustrative)',
+            data: sampleAQI,
+            fill:true,
+            tension:0.3,
+            backgroundColor:'rgba(2,128,144,0.12)',
+            borderColor:'#028090',
+            pointRadius:4
+          }]
+        },
+        options:{
+          responsive:true,
+          interaction:{mode:'index',intersect:false},
+          scales:{
+            y:{ title: { display:true, text:'AQI (lower is better)' }, beginAtZero:false },
+            x:{ title:{ display:true, text:'Year' } }
+          }
+        }
+      });
+    })();
+
+    /* ---------------------------
+       3) Live measurements widget using OpenAQ (no API key)
+       - This is optional: user can enter a city name to fetch 'latest' measurements.
+       - OpenAQ returns stations and measurements; we pick the first result for illustration.
+       ---------------------------- */
+    (function setupAQIWidget(){
+      const btn = document.getElementById('searchBtn');
+      const exampleBtn = document.getElementById('exampleBtn');
+      const input = document.getElementById('cityInput');
+
+      async function fetchCityMeasurements(city){
+        const endpoint = `https://api.openaq.org/v2/latest?city=${encodeURIComponent(city)}&limit=5`;
+        try{
+          const res = await fetch(endpoint);
+          if(!res.ok) throw new Error('Network response not ok');
+          const data = await res.json();
+          return data;
+        }catch(err){
+          console.error(err);
+          return null;
+        }
+      }
+
+      function displayResult(data){
+        const resultBox = document.getElementById('aqiResult');
+        const locEl = document.getElementById('aq-location');
+        const updatedEl = document.getElementById('aq-updated');
+        const pm25El = document.getElementById('aq-pm25');
+        const pm10El = document.getElementById('aq-pm10');
+        const srcEl = document.getElementById('aq-source');
+
+        if(!data || !data.results || data.results.length === 0){
+          alert('No recent measurements found for that city. Try another name or check spelling.');
+          return;
+        }
+
+        // pick the first station result for demonstration
+        const station = data.results[0];
+        const cityName = station.city || station.location || 'Unknown location';
+        const measurements = station.measurements || [];
+
+        // try to find PM2.5 and PM10
+        const pm25 = measurements.find(m => m.parameter.toLowerCase() === 'pm25');
+        const pm10 = measurements.find(m => m.parameter.toLowerCase() === 'pm10');
+
+        locEl.textContent = `${cityName} — ${station.location}`;
+        updatedEl.textContent = 'Updated: ' + (measurements[0] ? new Date(measurements[0].lastUpdated).toLocaleString() : '—');
+        pm25El.textContent = pm25 ? `${pm25.value} ${pm25.unit}` : 'N/A';
+        pm10El.textContent = pm10 ? `${pm10.value} ${pm10.unit}` : 'N/A';
+        srcEl.textContent = station.sourceName || 'OpenAQ';
+
+        resultBox.style.display = 'block';
+      }
+
+      btn.addEventListener('click', async () => {
+        const city = input.value.trim();
+        if(!city){ alert('Please enter a city name.'); input.focus(); return; }
+        btn.disabled = true;
+        btn.textContent = 'Loading...';
+        const data = await fetchCityMeasurements(city);
+        btn.textContent = 'Get latest';
+        btn.disabled = false;
+        displayResult(data);
+      });
+
+      // convenience button to show example data
+      exampleBtn.addEventListener('click', async () => {
+        input.value = 'Los Angeles';
+        exampleBtn.disabled = true;
+        exampleBtn.textContent = 'Loading...';
+        const data = await fetchCityMeasurements('Los Angeles');
+        exampleBtn.textContent = 'Example: Los Angeles';
+        exampleBtn.disabled = false;
+        displayResult(data);
+      });
+    })();
+  </script>
+</body>
+</html>
